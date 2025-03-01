@@ -24,22 +24,3 @@ const initialCards = [
       link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/baikal.jpg",
     }
 ];
-
-const placesList = document.querySelector(".places__list");
-
-function createCard(card) {
-    const cardTemplate = document.querySelector("#card-template").content.cloneNode(true);
-    const cardTitle = cardTemplate.querySelector(".card__title");
-    const cardImage = cardTemplate.querySelector(".card__image");
-
-    cardTitle.textContent = card.name;
-    cardImage.src = card.link;
-    cardImage.alt = card.name;
-
-    return cardTemplate;
-}
-
-initialCards.forEach((card) => {
-    placesList.append(createCard(card));
-});
-
