@@ -164,3 +164,14 @@ const enableValidation = () => {
 };
 
 enableValidation();
+
+const enableOverlayClosing = () => {
+  const popupList = Array.from(document.querySelectorAll('.popup'));
+  popupList.forEach((popup) => {
+    popup.addEventListener('click', function() {
+      closeModal(popup);
+    })
+  })
+}
+
+enableOverlayClosing();
