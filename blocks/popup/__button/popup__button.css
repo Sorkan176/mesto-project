@@ -14,12 +14,12 @@
   margin-top: 48px;
 }
 
-.popup__button:not(.button_inactive):hover {
+.popup__button:not(.popup__button_disabled):hover {
   background: rgba(0, 0, 0, 0.8);
   cursor: pointer;
 }
 
-.button_inactive {
+.popup__button_disabled {
   color: #c5c5c5;
   background: white;
   border: #c5c5c5 1px solid;

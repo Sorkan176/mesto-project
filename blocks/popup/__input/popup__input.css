@@ -18,11 +18,11 @@
   display: none;
 }
 
-.form__input_type_error {
+.popup__input_type_error {
   border-bottom-color: red;
 }
 
-.form__input-error_active {
+.popup__error_visible {
   display: block;
   color: red;
 }
