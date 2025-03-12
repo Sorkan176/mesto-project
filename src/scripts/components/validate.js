@@ -26,6 +26,11 @@ function hasInvalidInput(inputList) {
   });
 }
 
+function disableSubmitButton(buttonElement, inactiveButtonClass) {
+  buttonElement.classList.add(inactiveButtonClass);
+  buttonElement.setAttribute('disabled', true);
+}
+
 function toggleButtonState(inactiveButtonClass, inputList, buttonElement) {
   if (hasInvalidInput(inputList)) {
     buttonElement.classList.add(inactiveButtonClass);
@@ -40,7 +45,7 @@ const setEventListeners = (validSettings, formElement) => {
   const inputList = Array.from(formElement.querySelectorAll(validSettings.inputSelector));
   const buttonElement = formElement.querySelector(validSettings.submitButtonSelector);
 
-  toggleButtonState(validSettings.inactiveButtonClass, inputList, buttonElement);
+  disableSubmitButton(buttonElement, validSettings.inactiveButtonClass);
 
   inputList.forEach((inputElement) => {
     inputElement.addEventListener('input', function () {
@@ -61,4 +66,4 @@ const enableValidation = (validSettings) => {
   });
 };
 
-export { enableValidation };
+export { enableValidation, disableSubmitButton };

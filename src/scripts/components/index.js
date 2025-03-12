@@ -1,8 +1,8 @@
-import '../pages/index.css'
-import { createCard } from './components/card.js'
-import { openModal, closeModal } from './components/modal.js'
-import { enableValidation } from './components/validate.js'
-import { initialCards } from './cards.js'
+import '../../pages/index.css'
+import { createCard } from './card.js'
+import { openModal, closeModal } from './modal.js'
+import { enableValidation, disableSubmitButton } from './validate.js'
+import { initialCards } from '../cards.js'
 
 
 const placesList = document.querySelector(".places__list");
@@ -11,16 +11,21 @@ const profile = document.querySelector('.profile');
 const profileEditButton = profile.querySelector('.profile__edit-button');
 const profileName = profile.querySelector('.profile__title');
 const profileDescription = profile.querySelector('.profile__description');
+
 const profilePopup = document.querySelector('.popup_type_edit');
+const profileForm = profilePopup.querySelector('.popup__form');
 const nameInput = profilePopup.querySelector('.popup__input_type_name');
 const jobInput = profilePopup.querySelector('.popup__input_type_description');
 const closeProfilePopupButton = profilePopup.querySelector('.popup__close');
+const profileSubmitButton = profilePopup.querySelector('.popup__button');
 
 const cardAddButton = profile.querySelector('.profile__add-button');
 const cardPopup = document.querySelector('.popup_type_new-card');
+const cardForm = cardPopup.querySelector('.popup__form');
 const closeCardPopupButton = cardPopup.querySelector('.popup__close');
 const cardNameInput = cardPopup.querySelector('.popup__input_type_card-name');
 const cardUrlInput = cardPopup.querySelector('.popup__input_type_url');
+const cardSubmitButton = cardPopup.querySelector('.popup__button');
 
 const imagePopup = document.querySelector('.popup_type_image');
 const imageName = imagePopup.querySelector('.popup__caption');
@@ -66,11 +71,12 @@ profileEditButton.addEventListener('click', function openProfileEdit()  {
 
 closeProfilePopupButton.addEventListener('click', () => closeModal(profilePopup));
 
-profilePopup.addEventListener('submit', function handleProfileFormSubmit(evt) {
+profileForm.addEventListener('submit', function handleProfileFormSubmit(evt) {
   evt.preventDefault();
   profileName.textContent = nameInput.value;
   profileDescription.textContent = jobInput.value;
   closeModal(profilePopup);
+  disableSubmitButton(profileSubmitButton, 'popup__button_disabled');
 });
 
 
@@ -83,10 +89,11 @@ cardAddButton.addEventListener('click', function openCardAdding() {
 
 closeCardPopupButton.addEventListener('click', () => closeModal(cardPopup));
 
-cardPopup.addEventListener('submit', function handleCardFormSubmit(evt) {
+cardForm.addEventListener('submit', function handleCardFormSubmit(evt) {
   evt.preventDefault();
   placesList.prepend(createCard({name: cardNameInput.value, link: cardUrlInput.value}));
   closeModal(cardPopup);
+  disableSubmitButton(cardSubmitButton, 'popup__button_disabled');
 });
 
 // обработчик закрытия картинки по кнопке
