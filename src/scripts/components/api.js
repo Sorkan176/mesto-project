@@ -1,6 +1,6 @@
 import { closeModal } from './modal.js'
 import { disableSubmitButton } from "./validate";
-import {createCard} from "./card";
+import { createCard } from "./card";
 
 
 const config = {
@@ -8,7 +8,8 @@ const config = {
   headers: {
     authorization: '450ee041-353e-4009-b774-e38bda343da7',
     'Content-Type': 'application/json'
-  }
+  },
+  ownerId: '084435b1fc533211387501ad'
 }
 
 
@@ -193,5 +194,5 @@ function deleteLike(cardId) {
 }
 
 
-export { getInitialCards, getProfileDate, updateProfileData, updateProfileImage, addCardToServer,
+export { config, getInitialCards, getProfileDate, updateProfileData, updateProfileImage, addCardToServer,
   deleteCardFromServer, addLike, deleteLike, renderLoading };
