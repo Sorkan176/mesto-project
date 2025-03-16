@@ -1,8 +1,7 @@
 import '../../pages/index.css'
-import { createCard } from './card.js'
 import { openModal, closeModal } from './modal.js'
 import { enableValidation } from './validate.js'
-import { updateProfileData, updateProfileImage, addCardToServer, deleteCardFromServer,
+import { getInitialCards, getProfileDate, updateProfileData, updateProfileImage, addCardToServer, deleteCardFromServer,
   addLike, deleteLike, renderLoading } from './api.js'
 
 
@@ -42,33 +41,10 @@ const imageCloseButton = imagePopup.querySelector('.popup__close');
 
 
 // загрузить данные профиля
-fetch('https://nomoreparties.co/v1/apf-cohort-202/users/me', {
-  headers: {
-    authorization: '450ee041-353e-4009-b774-e38bda343da7'
-  }
-})
-  .then(res => res.json())
-  .then((result) => {
-    //console.log(result);
-    profileName.textContent = result.name;
-    profileDescription.textContent = result.about;
-    profileImage.style.backgroundImage=`url(${result.avatar})`;
-  })
-  .catch(err => console.error(err));
-
+getProfileDate(profileName, profileDescription, profileImage);
 
 // загрузить картинки с сервера
-fetch('https://nomoreparties.co/v1/apf-cohort-202/cards', {
-  headers: {
-    authorization: '450ee041-353e-4009-b774-e38bda343da7'
-  }
-})
-  .then(res => res.json())
-  .then((result) => {
-    console.log(result);
-    result.forEach((card) => placesList.append(createCard(card)));
-  })
-  .catch(err => console.error(err));
+getInitialCards(placesList);
 
 
 // добавление одного обработчика на общий контейнер с карточками
@@ -80,13 +56,11 @@ placesList.addEventListener('click', function (evt) {
     evtTarget.classList.toggle('card__like-button_is-active');
 
     if (evtTarget.classList.contains('card__like-button_is-active')) {
-      //evtTarget.textContent = Number(evtTarget.textContent) + 1;
       addLike(cardId)
         .then(likesCount => {
           evtTarget.textContent = likesCount;
         })
     } else {
-      //evtTarget.textContent = Number(evtTarget.textContent) - 1;
       deleteLike(cardId)
         .then(likesCount => {
           evtTarget.textContent = likesCount;
@@ -110,7 +84,13 @@ placesList.addEventListener('click', function (evt) {
 });
 
 
-document.querySelectorAll('.popup').forEach((popupItem) => popupItem.classList.add('popup_is-animated'));
+// плавное появление попапов
+document.querySelectorAll('.popup').forEach((popupItem) =>
+  popupItem.classList.add('popup_is-animated'));
+
+
+// обработчик закрытия картинки по кнопке
+imageCloseButton.addEventListener('click', () => closeModal(imagePopup));
 
 
 // обработчики для окна профиля
@@ -134,6 +114,7 @@ profileForm.addEventListener('submit', function handleProfileFormSubmit(evt) {
     profileSubmitButton
   );
 });
+
 
 // обработчики для обновления картинки профиля
 profileImage.addEventListener('click', function openProfileImageEdit() {
@@ -174,10 +155,6 @@ cardForm.addEventListener('submit', function handleCardFormSubmit(evt) {
     cardPopup,
     cardSubmitButton);
 });
-
-
-// обработчик закрытия картинки по кнопке
-imageCloseButton.addEventListener('click', () => closeModal(imagePopup));
 
 
 // валидация форм

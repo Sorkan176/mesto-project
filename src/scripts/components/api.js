@@ -3,6 +3,58 @@ import { disableSubmitButton } from "./validate";
 import {createCard} from "./card";
 
 
+const config = {
+  baseUrl: 'https://nomoreparties.co/v1/apf-cohort-202',
+  headers: {
+    authorization: '450ee041-353e-4009-b774-e38bda343da7',
+    'Content-Type': 'application/json'
+  }
+}
+
+
+// загрузка данных профиля
+function getProfileDate(profileName, profileDescription, profileImage) {
+  fetch(`${config.baseUrl}/users/me`, {
+    headers: {
+      authorization: config.headers.authorization
+    }
+  })
+    .then(res => {
+      if (!res.ok) {
+        return Promise.reject(`Ошибка: ${res.status}`);
+      }
+      return res.json();
+    })
+    .then((profile) => {
+      profileName.textContent = profile.name;
+      profileDescription.textContent = profile.about;
+      profileImage.style.backgroundImage=`url(${profile.avatar})`;
+    })
+    .catch(err => console.error(err));
+}
+
+
+// загрузка картинок с сервера
+function getInitialCards(placesList) {
+  fetch(`${config.baseUrl}/cards`, {
+    headers: {
+      authorization: config.headers.authorization
+    }
+  })
+    .then(res => {
+      if (!res.ok) {
+        return Promise.reject(`Ошибка: ${res.status}`);
+      }
+      return res.json();
+    })
+    .then((result) => {
+      result.forEach((card) => placesList.append(createCard(card)));
+    })
+    .catch(err => console.error(err));
+}
+
+
+// изменение кнопки при загрузке
 function renderLoading(button, isLoading) {
   if (isLoading) {
     button.textContent = 'Сохранение...';
@@ -11,14 +63,12 @@ function renderLoading(button, isLoading) {
   }
 }
 
-// обновить данные профиля на сервере
+
+// обновление данных профиля на сервере
 function updateProfileData(nameInput, jobInput, profileName, profileDescription, profilePopup, profileSubmitButton) {
-  fetch('https://nomoreparties.co/v1/apf-cohort-202/users/me', {
+  fetch(`${config.baseUrl}/users/me`, {
     method: 'PATCH',
-    headers: {
-      authorization: '450ee041-353e-4009-b774-e38bda343da7',
-      'Content-Type': 'application/json'
-    },
+    headers: config.headers,
     body: JSON.stringify({
       name: nameInput,
       about: jobInput
@@ -44,14 +94,12 @@ function updateProfileData(nameInput, jobInput, profileName, profileDescription,
     });
 }
 
-// обновить фотографию профиля
+
+// обновление фотографии профиля
 function updateProfileImage(imageInput, profileImage, profileImagePopup, profileImageSubmitButton) {
-  fetch('https://nomoreparties.co/v1/apf-cohort-202/users/me/avatar', {
+  fetch(`${config.baseUrl}/users/me/avatar`, {
     method: 'PATCH',
-    headers: {
-      authorization: '450ee041-353e-4009-b774-e38bda343da7',
-      'Content-Type': 'application/json'
-    },
+    headers: config.headers,
     body: JSON.stringify({
       avatar: imageInput
     })
@@ -75,14 +123,12 @@ function updateProfileImage(imageInput, profileImage, profileImagePopup, profile
     });
 }
 
-//добавить карточку на сервер
+
+//добавление карточки на сервер
 function addCardToServer(cardNameInput, cardUrlInput, placesList, cardPopup, cardSubmitButton) {
-  fetch('https://nomoreparties.co/v1/apf-cohort-202/cards', {
+  fetch(`${config.baseUrl}/cards`, {
     method: 'POST',
-    headers: {
-      authorization: '450ee041-353e-4009-b774-e38bda343da7',
-      'Content-Type': 'application/json'
-    },
+    headers: config.headers,
     body: JSON.stringify({
       name: cardNameInput,
       link: cardUrlInput
@@ -107,27 +153,24 @@ function addCardToServer(cardNameInput, cardUrlInput, placesList, cardPopup, car
     });
 }
 
-// удалить карточку на сервере
+
+// удаление карточки на сервере
 function deleteCardFromServer(cardId) {
-  fetch(`https://nomoreparties.co/v1/apf-cohort-202/cards/${cardId}`, {
+  fetch(`${config.baseUrl}/cards/${cardId}`, {
     method: 'DELETE',
-    headers: {
-      authorization: '450ee041-353e-4009-b774-e38bda343da7',
-      'Content-Type': 'application/json'
-    }
+    headers: config.headers
   })
     .then(res => res.json())
     .then()
     .catch(err => console.error(err));
 }
 
+
+// добавление лайка на карточку
 function addLike(cardId) {
-  return fetch(`https://nomoreparties.co/v1/apf-cohort-202/cards/likes/${cardId}`, {
+  return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
     method: 'PUT',
-    headers: {
-      authorization: '450ee041-353e-4009-b774-e38bda343da7',
-      'Content-Type': 'application/json'
-    }
+    headers: config.headers
   })
     .then(res => res.json())
     .then(res => {
@@ -136,13 +179,11 @@ function addLike(cardId) {
     .catch(err => console.error(err));
 }
 
+// удаление лайка с карточки
 function deleteLike(cardId) {
-  return fetch(`https://nomoreparties.co/v1/apf-cohort-202/cards/likes/${cardId}`, {
+  return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
     method: 'DELETE',
-    headers: {
-      authorization: '450ee041-353e-4009-b774-e38bda343da7',
-      'Content-Type': 'application/json'
-    }
+    headers: config.headers
   })
     .then(res => res.json())
     .then(res => {
@@ -152,4 +193,5 @@ function deleteLike(cardId) {
 }
 
 
-export { updateProfileData, updateProfileImage, addCardToServer, deleteCardFromServer, addLike, deleteLike, renderLoading };
+export { getInitialCards, getProfileDate, updateProfileData, updateProfileImage, addCardToServer,
+  deleteCardFromServer, addLike, deleteLike, renderLoading };
