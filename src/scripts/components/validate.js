@@ -1,22 +1,22 @@
-function showInputError(inputErrorClass, errorClass, formElement, inputElement, errorMessage) {
-  inputElement.classList.add(inputErrorClass);
+function showInputError(validSettings, formElement, inputElement, errorMessage) {
+  inputElement.classList.add(validSettings.inputErrorClass);
   const formError = formElement.querySelector(`.${inputElement.id}-error`);
-  formError.classList.add(errorClass);
+  formError.classList.add(validSettings.errorClass);
   formError.textContent = errorMessage;
 }
 
-function hideInputError(inputErrorClass, errorClass, formElement, inputElement){
-  inputElement.classList.remove(inputErrorClass);
+function hideInputError(validSettings, formElement, inputElement){
+  inputElement.classList.remove(validSettings.inputErrorClass);
   const formError = formElement.querySelector(`.${inputElement.id}-error`);
-  formError.classList.remove(errorClass);
+  formError.classList.remove(validSettings.errorClass);
   formError.textContent = '';
 }
 
-function checkInputValidity(inputErrorClass, errorClass, formElement, inputElement){
+function checkInputValidity(validSettings, formElement, inputElement){
   if (!inputElement.validity.valid) {
-    showInputError(inputErrorClass, errorClass, formElement, inputElement, inputElement.validationMessage);
+    showInputError(validSettings, formElement, inputElement, inputElement.validationMessage);
   } else {
-    hideInputError(inputErrorClass, errorClass, formElement, inputElement);
+    hideInputError(validSettings, formElement, inputElement);
   }
 }
 
@@ -33,13 +33,23 @@ function disableSubmitButton(buttonElement, inactiveButtonClass) {
 
 function toggleButtonState(inactiveButtonClass, inputList, buttonElement) {
   if (hasInvalidInput(inputList)) {
-    buttonElement.classList.add(inactiveButtonClass);
-    buttonElement.setAttribute('disabled', true);
+    disableSubmitButton(buttonElement, inactiveButtonClass);
   } else {
     buttonElement.classList.remove(inactiveButtonClass);
     buttonElement.removeAttribute('disabled');
   }
 }
+
+const resetValidation = (validSettings, formElement) => {
+  const inputList = Array.from(formElement.querySelectorAll(validSettings.inputSelector));
+  const buttonElement = formElement.querySelector(validSettings.submitButtonSelector);
+
+  inputList.forEach((inputElement) => {
+    hideInputError(validSettings, formElement, inputElement);
+  });
+
+  disableSubmitButton(buttonElement, validSettings.inactiveButtonClass);
+};
 
 const setEventListeners = (validSettings, formElement) => {
   const inputList = Array.from(formElement.querySelectorAll(validSettings.inputSelector));
@@ -49,7 +59,7 @@ const setEventListeners = (validSettings, formElement) => {
 
   inputList.forEach((inputElement) => {
     inputElement.addEventListener('input', function () {
-      checkInputValidity(validSettings.inputErrorClass, validSettings.errorClass, formElement, inputElement);
+      checkInputValidity(validSettings, formElement, inputElement);
       toggleButtonState(validSettings.inactiveButtonClass, inputList, buttonElement);
     });
   });
@@ -66,4 +76,4 @@ const enableValidation = (validSettings) => {
   });
 };
 
-export { enableValidation, disableSubmitButton };
+export { enableValidation, disableSubmitButton, resetValidation };

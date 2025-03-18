@@ -1,8 +1,10 @@
 import '../../pages/index.css'
 import { openModal, closeModal } from './modal.js'
-import { enableValidation } from './validate.js'
-import { getInitialCards, getProfileDate, updateProfileData, updateProfileImage, addCardToServer, deleteCardFromServer,
+import { disableSubmitButton, enableValidation, resetValidation } from './validate.js'
+import { getInitialCards, setOwnerId, getProfileDate, updateProfileData, updateProfileImage, addCardToServer, deleteCardFromServer,
   addLike, deleteLike, renderLoading } from './api.js'
+import {createCard} from "./card";
+
 
 
 const placesList = document.querySelector(".places__list");
@@ -39,12 +41,31 @@ const imageName = imagePopup.querySelector('.popup__caption');
 const imageSource = imagePopup.querySelector('.popup__image');
 const imageCloseButton = imagePopup.querySelector('.popup__close');
 
+// валидация форм
+const validationSettings = {
+  formSelector: '.popup__form',
+  inputSelector: '.popup__input',
+  submitButtonSelector: '.popup__button',
+  inactiveButtonClass: 'popup__button_disabled',
+  inputErrorClass: 'popup__input_type_error',
+  errorClass: 'popup__error_visible'
+}
 
-// загрузить данные профиля
-getProfileDate(profileName, profileDescription, profileImage);
 
-// загрузить картинки с сервера
-getInitialCards(placesList);
+Promise.all([getProfileDate(), getInitialCards()])
+  .then(([profile, cards]) => {
+
+    // загрузить данные профиля
+    profileName.textContent = profile.name;
+    profileDescription.textContent = profile.about;
+    profileImage.style.backgroundImage = `url(${profile.avatar})`;
+    setOwnerId(profile._id);
+
+    // загрузить и отобразить картинки с сервера
+    console.log(cards);
+    cards.forEach((card) => placesList.append(createCard(card)));
+  })
+  .catch(err => console.error(err));
 
 
 // добавление одного обработчика на общий контейнер с карточками
@@ -57,20 +78,26 @@ placesList.addEventListener('click', function (evt) {
 
     if (evtTarget.classList.contains('card__like-button_is-active')) {
       addLike(cardId)
-        .then(likesCount => {
-          evtTarget.textContent = likesCount;
+        .then(card => {
+          evtTarget.textContent = card.likes.length;
         })
+        .catch(err => console.error(err));
     } else {
       deleteLike(cardId)
-        .then(likesCount => {
-          evtTarget.textContent = likesCount;
+        .then(card => {
+          evtTarget.textContent = card.likes.length;
         })
+        .catch(err => console.error(err));
     }
   }
 
   if (evtTarget.classList.contains('card__delete-button')) {
-    deleteCardFromServer(evtTarget.parentElement.id);
-    evtTarget.closest('.places__item').remove();
+    deleteCardFromServer(evtTarget.parentElement.id)
+      .then(() => {
+        evtTarget.closest('.places__item').remove();
+      })
+      .catch(err => console.error(err));
+
   }
 
   if (evtTarget.classList.contains('card__image')) {
@@ -100,19 +127,27 @@ profileEditButton.addEventListener('click', function openProfileEdit()  {
   openModal(profilePopup);
 });
 
-closeProfilePopupButton.addEventListener('click', () => closeModal(profilePopup));
+closeProfilePopupButton.addEventListener('click', () => {
+  closeModal(profilePopup);
+  resetValidation(validationSettings, profileForm);
+});
 
 profileForm.addEventListener('submit', function handleProfileFormSubmit(evt) {
   evt.preventDefault();
   renderLoading(profileSubmitButton, true);
-  updateProfileData(
-    nameInput.value,
-    jobInput.value,
-    profileName,
-    profileDescription,
-    profilePopup,
-    profileSubmitButton
-  );
+  updateProfileData(nameInput.value, jobInput.value)
+    .then(profileData => {
+      profileName.textContent = profileData.name;
+      profileDescription.textContent = profileData.about;
+      closeModal(profilePopup);
+      disableSubmitButton(profileSubmitButton, 'popup__button_disabled');
+    })
+    .catch(err => {
+      console.error(err);
+    })
+    .finally(() => {
+      renderLoading(profileSubmitButton, false);
+    });
 });
 
 
@@ -122,17 +157,26 @@ profileImage.addEventListener('click', function openProfileImageEdit() {
   openModal(profileImagePopup);
 });
 
-closeProfileImagePopupButton.addEventListener('click', () => closeModal(profileImagePopup));
+closeProfileImagePopupButton.addEventListener('click', () => {
+  closeModal(profileImagePopup);
+  resetValidation(validationSettings, profileImageForm);
+});
 
 profileImageForm.addEventListener('submit', function handleProfileImageSubmit(evt) {
   evt.preventDefault();
   renderLoading(profileImageSubmitButton, true);
-  updateProfileImage(
-    profileImageUrl.value,
-    profileImage,
-    profileImagePopup,
-    profileImageSubmitButton
-    );
+  updateProfileImage(profileImageUrl.value)
+    .then(imageData => {
+      profileImage.style.backgroundImage = `url(${imageData.avatar})`;
+      closeModal(profileImagePopup);
+      disableSubmitButton(profileImageSubmitButton, 'popup__button_disabled');
+    })
+    .catch(err => {
+      console.error(err);
+    })
+    .finally(() => {
+      renderLoading(profileImageSubmitButton, false);
+    });
 })
 
 
@@ -143,28 +187,27 @@ cardAddButton.addEventListener('click', function openCardAdding() {
   openModal(cardPopup);
 });
 
-closeCardPopupButton.addEventListener('click', () => closeModal(cardPopup));
+closeCardPopupButton.addEventListener('click', () => {
+  closeModal(cardPopup);
+  resetValidation(validationSettings, cardForm);
+});
 
 cardForm.addEventListener('submit', function handleCardFormSubmit(evt) {
   evt.preventDefault();
   renderLoading(cardSubmitButton, true);
-  addCardToServer(
-    cardNameInput.value,
-    cardUrlInput.value,
-    placesList,
-    cardPopup,
-    cardSubmitButton);
+  addCardToServer(cardNameInput.value, cardUrlInput.value)
+    .then(card => {
+      placesList.prepend(createCard(card));
+      closeModal(cardPopup);
+      disableSubmitButton(cardSubmitButton, 'popup__button_disabled');
+    })
+    .catch(err => {
+      console.error(err);
+    })
+    .finally(() => {
+      renderLoading(cardSubmitButton, false);
+    });
 });
 
-
-// валидация форм
-const validationSettings = {
-  formSelector: '.popup__form',
-  inputSelector: '.popup__input',
-  submitButtonSelector: '.popup__button',
-  inactiveButtonClass: 'popup__button_disabled',
-  inputErrorClass: 'popup__input_type_error',
-  errorClass: 'popup__error_visible'
-}
 
 enableValidation(validationSettings);
