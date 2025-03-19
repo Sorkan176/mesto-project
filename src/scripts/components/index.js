@@ -1,8 +1,8 @@
 import '../../pages/index.css'
 import { openModal, closeModal } from './modal.js'
 import { disableSubmitButton, enableValidation, resetValidation } from './validate.js'
-import { getInitialCards, setOwnerId, getProfileDate, updateProfileData, updateProfileImage, addCardToServer, deleteCardFromServer,
-  addLike, deleteLike, renderLoading } from './api.js'
+import { getInitialCards, setOwnerId, getProfileDate, updateProfileData, updateProfileImage, addCardToServer,
+  deleteCardFromServer, addLike, deleteLike, renderLoading } from './api.js'
 import {createCard} from "./card";
 
 
@@ -55,14 +55,13 @@ const validationSettings = {
 Promise.all([getProfileDate(), getInitialCards()])
   .then(([profile, cards]) => {
 
-    // загрузить данные профиля
+    // загрузка данных профиля
     profileName.textContent = profile.name;
     profileDescription.textContent = profile.about;
     profileImage.style.backgroundImage = `url(${profile.avatar})`;
     setOwnerId(profile._id);
 
-    // загрузить и отобразить картинки с сервера
-    console.log(cards);
+    // загрузка и отображение карточек с сервера
     cards.forEach((card) => placesList.append(createCard(card)));
   })
   .catch(err => console.error(err));

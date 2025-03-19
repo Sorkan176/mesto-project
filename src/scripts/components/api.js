@@ -8,7 +8,7 @@ const config = {
 }
 
 
-// загрузка данных профиля
+// загрузка данных профиля с сервера
 function getProfileDate() {
   return fetch(`${config.baseUrl}/users/me`, {
     headers: {
@@ -23,12 +23,13 @@ function getProfileDate() {
     })
 }
 
+// добавление id текущего пользователя в config
 function setOwnerId(ownerId) {
   config.ownerId = ownerId;
 }
 
 
-// загрузка картинок с сервера
+// загрузка карточек с сервера
 function getInitialCards() {
   return fetch(`${config.baseUrl}/cards`, {
     headers: {
@@ -73,7 +74,7 @@ function updateProfileData(nameInput, jobInput) {
 }
 
 
-// обновление фотографии профиля
+// обновление фотографии профиля на сервере
 function updateProfileImage(imageInput) {
   return fetch(`${config.baseUrl}/users/me/avatar`, {
     method: 'PATCH',
@@ -91,7 +92,7 @@ function updateProfileImage(imageInput) {
 }
 
 
-//добавление карточки на сервер
+// добавление карточки на сервер
 function addCardToServer(cardNameInput, cardUrlInput) {
   return fetch(`${config.baseUrl}/cards`, {
     method: 'POST',
@@ -125,7 +126,7 @@ function deleteCardFromServer(cardId) {
 }
 
 
-// добавление лайка на карточку
+// добавление лайка на карточку на сервере
 function addLike(cardId) {
   return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
     method: 'PUT',
@@ -139,7 +140,7 @@ function addLike(cardId) {
     })
 }
 
-// удаление лайка с карточки
+// удаление лайка с карточки на сервере
 function deleteLike(cardId) {
   return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
     method: 'DELETE',
