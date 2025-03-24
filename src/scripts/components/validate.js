@@ -16,8 +16,20 @@ function hideInputError(validSettings, formElement, inputElement){
 
 // проверить корректность поля ввода формы
 function checkInputValidity(validSettings, formElement, inputElement){
+  let errorMessage = '';
+
   if (!inputElement.validity.valid) {
-    showInputError(validSettings, formElement, inputElement, inputElement.validationMessage);
+    errorMessage = inputElement.validationMessage;
+  } else if (inputElement.type === 'url') {
+    const pattern = /^(https?:\/\/)([\w-]+\.)+[\w-]+(\/[\w-]*)*$/;
+
+    if (!pattern.test(inputElement.value)) {
+      errorMessage = "Введите корректный URL";
+    }
+  }
+
+  if (errorMessage) {
+    showInputError(validSettings, formElement, inputElement, errorMessage);
   } else {
     hideInputError(validSettings, formElement, inputElement);
   }
